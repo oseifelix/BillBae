@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BillBae — Are you on the same page?</title>
+    <meta name="description"
+        content="BillBae: Generate a Love Receipt and bill your partner for your patience and love this Valentine's Day." />
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=VT323&display=swap"
+        rel="stylesheet" />
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        receipt: ['VT323', 'monospace'],
+                    },
+                    colors: {
+                        love: {
+                            50: '#FDF2F8',
+                            100: '#FCE7F3',
+                            200: '#FBCFE8',
+                            300: '#F9A8D4',
+                            400: '#F472B6',
+                            500: '#EC4899',
+                            600: '#DB2777',
+                            700: '#BE185D',
+                            800: '#9D174D',
+                            900: '#831843',
+                        },
+                    },
+                },
+            },
+        };
+    </script>
+
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+    <!-- html2canvas -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+
+
+    <style>
+        /* ── Global ─────────────────────────────────────── */
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #F3F4F6;
+            min-height: 100dvh;
+        }
+
+        /* ── Animated gradient background ────────────────── */
+        .bg-love-gradient {
+            background: linear-gradient(135deg, #FDF2F8 0%, #FCE7F3 30%, #FBCFE8 60%, #FDF2F8 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 12s ease infinite;
+        }
+
+        @keyframes gradientShift {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        /* ── Floating hearts ─────────────────────────────── */
+        .hearts-bg {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 0;
+        }
+
+        .hearts-bg span {
+            position: absolute;
+            bottom: -40px;
+            font-size: var(--size, 20px);
+            opacity: 0.65;
+            animation: floatUp var(--dur, 10s) linear infinite;
+            animation-delay: var(--delay, 0s);
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 0.65;
+            }
+
+            50% {
+                opacity: 0.85;
+            }
+
+            100% {
+                transform: translateY(-110vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* ── Card hover lift ─────────────────────────────── */
+        .card-lift {
+            transition: transform 0.3s cubic-bezier(.4, 0, .2, 1), box-shadow 0.3s cubic-bezier(.4, 0, .2, 1);
+        }
+
+        .card-lift:hover {
+            transform: translateY(-6px) scale(1.02);
+            box-shadow: 0 20px 40px -12px rgba(236, 72, 153, 0.25);
+        }
+
+        /* ── Receipt styles ──────────────────────────────── */
+        .receipt-paper {
+            background: #fff;
+            font-family: 'VT323', monospace;
+            color: #000;
+            padding: 28px 24px 40px;
+            position: relative;
+            max-width: 360px;
+            width: 100%;
+            margin: 0 auto;
+            clip-path: polygon(0% 0%, 3% 0.6%, 6% 0%, 9% 0.6%, 12% 0%, 15% 0.6%, 18% 0%, 21% 0.6%,
+                    24% 0%, 27% 0.6%, 30% 0%, 33% 0.6%, 36% 0%, 39% 0.6%, 42% 0%, 45% 0.6%,
+                    48% 0%, 51% 0.6%, 54% 0%, 57% 0.6%, 60% 0%, 63% 0.6%, 66% 0%, 69% 0.6%,
+                    72% 0%, 75% 0.6%, 78% 0%, 81% 0.6%, 84% 0%, 87% 0.6%, 90% 0%, 93% 0.6%,
+                    96% 0%, 100% 0.6%,
+                    100% 100%,
+                    96% 99.4%, 93% 100%, 90% 99.4%, 87% 100%, 84% 99.4%, 81% 100%, 78% 99.4%,
+                    75% 100%, 72% 99.4%, 69% 100%, 66% 99.4%, 63% 100%, 60% 99.4%, 57% 100%,
+                    54% 99.4%, 51% 100%, 48% 99.4%, 45% 100%, 42% 99.4%, 39% 100%, 36% 99.4%,
+                    33% 100%, 30% 99.4%, 27% 100%, 24% 99.4%, 21% 100%, 18% 99.4%, 15% 100%,
+                    12% 99.4%, 9% 100%, 6% 99.4%, 3% 100%, 0% 99.4%);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+        }
+
+        .receipt-paper::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: repeating-linear-gradient(0deg, transparent, transparent 27px, rgba(0, 0, 0, 0.03) 27px, rgba(0, 0, 0, 0.03) 28px);
+            pointer-events: none;
+        }
+
+        .receipt-divider {
+            border: none;
+            border-top: 2px dashed #000;
+            margin: 10px 0;
+        }
+
+        .barcode {
+            display: flex;
+            justify-content: center;
+            gap: 1px;
+            margin-top: 14px;
+        }
+
+        .barcode span {
+            display: inline-block;
+            height: 36px;
+            background: #000;
+        }
+
+        /* ── Pulse animation ─────────────────────────────── */
+        .pulse-heart {
+            animation: pulseHeart 1.2s ease-in-out infinite;
+        }
+
+        @keyframes pulseHeart {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.15);
+            }
+        }
+
+        /* ── Slide transitions ───────────────────────────── */
+        .slide-in {
+            animation: slideIn 0.45s cubic-bezier(.4, 0, .2, 1) forwards;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+
+
+        /* ── Checkbox custom ─────────────────────────────── */
+        .love-check {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 22px;
+            height: 22px;
+            border: 2px solid #D1D5DB;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+            position: relative;
+        }
+
+        .love-check:checked {
+            background: #EC4899;
+            border-color: #EC4899;
+        }
+
+        .love-check:checked::after {
+            content: '✓';
+            color: #fff;
+            font-size: 14px;
+            font-weight: 700;
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* ── Button glow ─────────────────────────────────── */
+        .btn-glow {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-glow::after {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            background: linear-gradient(45deg, #EC4899, #F472B6, #EC4899);
+            z-index: -1;
+            border-radius: inherit;
+            filter: blur(12px);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .btn-glow:hover::after {
+            opacity: 0.5;
+        }
+
+        /* ── Scrollbar ───────────────────────────────────── */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #FBCFE8;
+            border-radius: 3px;
+        }
+
+        /* ── Mobile optimizations ─────────────────────────── */
+        @media (max-width: 480px) {
+            .receipt-paper {
+                padding: 20px 16px 32px;
+                font-size: 14px;
+            }
+
+            .receipt-paper .text-2xl {
+                font-size: 1.25rem;
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-love-gradient min-h-screen" x-data="billBae()" x-init="init()">
+
+    <!-- Floating Hearts Background -->
+    <div class="hearts-bg" aria-hidden="true">
+        <template x-for="h in hearts" :key="h.id">
+            <span :style="`left:${h.left}%;--size:${h.size}px;--dur:${h.dur}s;--delay:${h.delay}s`">
+                <span x-text="h.emoji"></span>
+            </span>
+        </template>
+    </div>
+
+    <!-- Main Container -->
+    <div class="relative z-10 max-w-lg mx-auto px-4 py-8 min-h-screen flex flex-col">
+
+        <!-- ═══════════════════ HOME ═══════════════════ -->
+        <template x-if="view === 'home'">
+            <div class="slide-in flex flex-col items-center flex-1">
+                <!-- Logo -->
+                <div class="mb-2 mt-4">
+                    <div
+                        class="w-20 h-20 rounded-full bg-gradient-to-br from-love-400 to-love-600 flex items-center justify-center shadow-lg shadow-love-300/50 pulse-heart">
+                        <span class="text-3xl">💕</span>
+                    </div>
+                </div>
+                <h1 class="text-4xl font-black text-gray-800 tracking-tight mt-3">
+                    Bill<span class="text-love-500">Bae</span>
+                </h1>
+
+                <p class="text-gray-600 text-center mt-1 mb-8 text-base max-w-xs leading-relaxed">
+                    Bill your bae today. <span class="font-semibold text-love-600">They owe you.</span>
+                </p>
+
+                <!-- Action Cards -->
+                <div class="w-full space-y-4 mb-8">
+                    <!-- Card A: Receipt -->
+                    <button @click="view='receipt'"
+                        class="card-lift w-full bg-white/80 backdrop-blur-sm rounded-2xl p-6 text-left border border-love-100 hover:border-love-300 group cursor-pointer">
+                        <div class="flex items-start gap-4">
+                            <div
+                                class="w-14 h-14 rounded-xl bg-gradient-to-br from-love-100 to-love-200 flex items-center justify-center text-2xl flex-shrink-0 group-hover:scale-110 transition-transform">
+                                🧾
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <h2 class="text-lg font-bold text-gray-800 mb-1">Create a Love Receipt</h2>
+                                <p class="text-sm text-gray-500 leading-relaxed">Bill your partner for your patience and
+                                    love. Itemized, of course.</p>
+                            </div>
+                            <i
+                                class="fa-solid fa-chevron-right text-love-300 group-hover:text-love-500 transition-colors mt-1"></i>
+                        </div>
+                    </button>
+
+                </div>
+
+                <!-- Footer -->
+                <div class="mt-auto pb-4 text-center">
+                    <p class="text-xs text-gray-400">Made with ❤️ for Valentine's Day 2026</p>
+                    <a href="https://x.com/oseimarfofelix" target="_blank" rel="noopener"
+                        class="inline-flex items-center gap-1 text-xs text-love-500 hover:text-love-700 font-medium mt-1 transition-colors">
+                        <i class="fa-brands fa-x-twitter"></i> @oseimarfofelix
+                    </a>
+                </div>
+            </div>
+        </template>
+
+        <!-- ═══════════════════ RECEIPT ═══════════════════ -->
+        <template x-if="view === 'receipt'">
+            <div class="slide-in flex flex-col flex-1">
+                <!-- Header -->
+                <div class="flex items-center gap-3 mb-6">
+                    <button @click="view='home'"
+                        class="w-10 h-10 rounded-full bg-white/80 backdrop-blur flex items-center justify-center text-gray-500 hover:text-love-500 hover:bg-love-50 transition-all shadow-sm">
+                        <i class="fa-solid fa-arrow-left"></i>
+                    </button>
+                    <div>
+                        <h2 class="text-xl font-bold text-gray-800">Love Receipt</h2>
+                        <p class="text-xs text-gray-400">Itemize your love & devotion</p>
+                    </div>
+                </div>
+
+                <!-- Form -->
+                <div class="bg-white/80 backdrop-blur-sm rounded-2xl p-5 border border-love-100 mb-5 space-y-4">
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label
+                                class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1 block">From</label>
+                            <input x-model="receipt.from" type="text" placeholder="Your Name"
+                                class="w-full px-3 py-2.5 rounded-xl bg-gray-50 border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-love-300 focus:border-love-300 transition-all" />
+                        </div>
+                        <div>
+                            <label
+                                class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1 block">To</label>
+                            <input x-model="receipt.to" type="text" placeholder="Partner Name"
+                                class="w-full px-3 py-2.5 rounded-xl bg-gray-50 border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-love-300 focus:border-love-300 transition-all" />
+                        </div>
+                    </div>
+                    <div>
+                        <label
+                            class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1 block">Date</label>
+                        <input x-model="receipt.date" type="date"
+                            class="w-full px-3 py-2.5 rounded-xl bg-gray-50 border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-love-300 focus:border-love-300 transition-all" />
+                    </div>
+
+                    <!-- Menu Items -->
+                    <div>
+                        <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 block">The
+                            Menu</label>
+                        <div class="space-y-2">
+                            <template x-for="(item, i) in receiptMenu" :key="i">
+                                <label
+                                    class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-love-50/50 transition-colors cursor-pointer">
+                                    <input type="checkbox" x-model="item.checked" class="love-check" />
+                                    <span class="flex-1 text-sm text-gray-700" x-text="item.name"></span>
+                                    <span class="text-sm font-semibold text-love-600" x-text="item.priceLabel"></span>
+                                </label>
+                            </template>
+                        </div>
+                    </div>
+
+                    <!-- Custom Items -->
+                    <div class="border-t border-gray-100 pt-3">
+                        <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 block">Custom
+                            Items</label>
+                        <div class="space-y-2">
+                            <template x-for="(ci, idx) in customItems" :key="idx">
+                                <div class="flex gap-2 items-center">
+                                    <input x-model="ci.name" type="text" placeholder="Item name"
+                                        class="flex-1 px-3 py-2.5 rounded-xl bg-gray-50 border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-love-300 focus:border-love-300 transition-all" />
+                                    <input x-model="ci.price" type="text" placeholder="$0"
+                                        class="w-24 px-3 py-2.5 rounded-xl bg-gray-50 border border-gray-200 text-sm text-right focus:outline-none focus:ring-2 focus:ring-love-300 focus:border-love-300 transition-all" />
+                                    <button @click="customItems.splice(idx, 1)"
+                                        class="w-9 h-9 rounded-lg bg-red-50 text-red-400 hover:bg-red-100 hover:text-red-600 flex items-center justify-center flex-shrink-0 transition-all"
+                                        x-show="customItems.length > 1">
+                                        <i class="fa-solid fa-xmark text-sm"></i>
+                                    </button>
+                                </div>
+                            </template>
+                        </div>
+                        <button @click="customItems.push({name:'', price:''})"
+                            class="mt-2 w-full py-2 rounded-xl border-2 border-dashed border-love-200 text-love-500 text-sm font-semibold hover:bg-love-50 hover:border-love-400 transition-all flex items-center justify-center gap-1.5">
+                            <i class="fa-solid fa-plus text-xs"></i> Add Another Item
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Receipt Preview -->
+                <div class="mb-5">
+                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3 text-center">Preview</p>
+                    <div id="receipt-capture" class="receipt-paper">
+                        <div class="text-center mb-1">
+                            <p class="text-2xl font-bold tracking-wide">♥ BILLBAE ♥</p>
+                            <p class="text-base tracking-widest">TRANSACTION RECEIPT</p>
+                        </div>
+                        <hr class="receipt-divider" />
+                        <div class="flex justify-between text-base mb-0.5">
+                            <span>FROM:</span>
+                            <span x-text="receipt.from || '________'"></span>
+                        </div>
+                        <div class="flex justify-between text-base mb-0.5">
+                            <span>TO:</span>
+                            <span x-text="receipt.to || '________'"></span>
+                        </div>
+                        <div class="flex justify-between text-base">
+                            <span>DATE:</span>
+                            <span x-text="formatReceiptDate(receipt.date)"></span>
+                        </div>
+                        <hr class="receipt-divider" />
+                        <p class="text-base mb-1 tracking-wider">ITEMS:</p>
+                        <template x-for="item in selectedItems" :key="item.name">
+                            <div class="flex justify-between text-base">
+                                <span x-text="item.name"></span>
+                                <span x-text="item.priceLabel"></span>
+                            </div>
+                        </template>
+                        <template x-for="ci in customItems.filter(c => c.name.trim())" :key="ci.name">
+                            <div class="flex justify-between text-base">
+                                <span x-text="ci.name"></span>
+                                <span x-text="'$' + (ci.price || '0')"></span>
+                            </div>
+                        </template>
+                        <hr class="receipt-divider" />
+                        <div class="flex justify-between text-xl font-bold">
+                            <span>TOTAL:</span>
+                            <span x-text="'$' + receiptTotal"></span>
+                        </div>
+                        <hr class="receipt-divider" />
+                        <p class="text-center text-base mt-1 tracking-wide">Thank you for your love!</p>
+                        <p class="text-center text-sm opacity-60">No refunds. No exchanges.</p>
+                        <!-- Barcode -->
+                        <div class="barcode" aria-hidden="true">
+                            <template x-for="b in barcodeBars" :key="b.id">
+                                <span :style="`width:${b.w}px`"></span>
+                            </template>
+                        </div>
+                        <p class="text-center text-sm mt-1 opacity-50">billbae.app</p>
+                        <p class="text-center text-sm opacity-40 mt-0.5">Make yours → billbae.app</p>
+                    </div>
+                </div>
+
+                <!-- Download Button -->
+                <button @click="downloadReceipt()" :disabled="downloading"
+                    class="btn-glow w-full py-3.5 rounded-2xl bg-gradient-to-r from-love-500 to-love-600 text-white font-bold text-base shadow-lg shadow-love-400/30 hover:shadow-love-500/40 active:scale-[0.98] transition-all disabled:opacity-60 disabled:cursor-wait flex items-center justify-center gap-2">
+                    <i class="fa-solid" :class="downloading ? 'fa-spinner fa-spin' : 'fa-download'"></i>
+                    <span x-text="downloading ? 'Generating...' : 'Download Receipt'"></span>
+                </button>
+
+                <!-- New Receipt Button -->
+                <button @click="resetReceipt()"
+                    class="w-full py-3 mt-3 rounded-2xl bg-white border border-gray-200 text-gray-600 font-semibold hover:bg-gray-50 transition-all active:scale-[0.98] flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-rotate-right"></i> New Receipt
+                </button>
+            </div>
+        </template>
+
+
+    </div>
+
+    <script>
+        function billBae() {
+            return {
+                view: 'home',
+                downloading: false,
+
+                // ── Floating Hearts ─────────────────────────
+                hearts: [],
+                initHearts() {
+                    const emojis = ['❤️', '💕', '💖', '💗', '💘', '💝', '💓', '🩷', '😻', '💏', '💑', '🥰', '💌', '❤️‍🔥', '❣️', '💟', '💜', '💙', '🧡', '💛', '💚', '🤎', '🩵', '😍', '😘', '🫶', '🔥', '🌹', '💐', '🍫'];
+                    this.hearts = Array.from({ length: 30 }, (_, i) => ({
+                        id: i,
+                        left: Math.random() * 100,
+                        size: 20 + Math.random() * 28,
+                        dur: 8 + Math.random() * 14,
+                        delay: Math.random() * 12,
+                        emoji: emojis[i % emojis.length],
+                    }));
+                },
+
+                // ── Receipt ─────────────────────────────────
+                receipt: {
+                    from: '',
+                    to: '',
+                    date: '2026-02-14',
+                },
+                customItems: [{ name: '', price: '' }],
+                receiptMenu: [
+                    { name: 'Unlimited Patience', price: 500, priceLabel: '$500.00', checked: false },
+                    { name: 'Good Looks', price: 1000, priceLabel: '$1,000.00', checked: false },
+                    { name: 'Emotional Support', price: 750, priceLabel: '$750.00', checked: false },
+                    { name: 'Late Night Talks', price: 300, priceLabel: '$300.00', checked: false },
+                    { name: 'Cooking Skills', price: 600, priceLabel: '$600.00', checked: false },
+                    { name: 'Netflix Compromises', price: 200, priceLabel: '$200.00', checked: false },
+                    { name: 'Forgiveness', price: 5000, priceLabel: '$5,000.00', checked: false },
+                    { name: 'Putting Up With Snoring', price: 999, priceLabel: '$999.00', checked: false },
+                    { name: 'Cuddle Sessions', price: 450, priceLabel: '$450.00', checked: false },
+                    { name: 'Being Right (& Not Saying It)', price: 800, priceLabel: '$800.00', checked: false },
+                ],
+                get selectedItems() {
+                    return this.receiptMenu.filter(i => i.checked);
+                },
+                get receiptTotal() {
+                    let t = 0;
+                    this.selectedItems.forEach(i => { if (i.price !== null) t += i.price; });
+                    // Custom items
+                    this.customItems.forEach(ci => {
+                        const cp = parseFloat((ci.price || '').replace(/[^0-9.]/g, ''));
+                        if (ci.name.trim() && !isNaN(cp)) t += cp;
+                    });
+                    return t.toLocaleString();
+                },
+                barcodeBars: [],
+                initBarcode() {
+                    this.barcodeBars = Array.from({ length: 60 }, (_, i) => ({
+                        id: i,
+                        w: Math.random() > 0.5 ? 2 : 1,
+                    }));
+                },
+                formatReceiptDate(d) {
+                    if (!d) return '__ /__ /____';
+                    const dt = new Date(d + 'T00:00:00');
+                    return dt.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' });
+                },
+                resetReceipt() {
+                    this.receipt = { from: '', to: '', date: '2026-02-14' };
+                    this.customItems = [{ name: '', price: '' }];
+                    this.receiptMenu.forEach(i => i.checked = false);
+                },
+                async downloadReceipt() {
+                    this.downloading = true;
+                    try {
+                        await document.fonts.ready;
+                        await new Promise(r => setTimeout(r, 300));
+                        const el = document.getElementById('receipt-capture');
+                        const canvas = await html2canvas(el, {
+                            backgroundColor: null,
+                            scale: 3,
+                            useCORS: true,
+                            logging: false,
+                        });
+                        const link = document.createElement('a');
+                        link.download = 'billbae-receipt.png';
+                        link.href = canvas.toDataURL('image/png');
+                        link.click();
+                    } catch (e) {
+                        console.error('Download failed', e);
+                        alert('Oops! Could not generate the receipt image. Try again.');
+                    } finally {
+                        this.downloading = false;
+                    }
+                },
+
+                // ── Init ────────────────────────────────────
+                init() {
+                    this.initHearts();
+                    this.initBarcode();
+                },
+            };
+        }
+    </script>
+</body>
+
+</html>
